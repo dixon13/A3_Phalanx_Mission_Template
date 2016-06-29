@@ -1,11 +1,14 @@
 // F3 - Simple Wounding System -- Modified by robtherad
 // Credits: Please see the F3 online manual (http://www.ferstaberinde.com/f3/en/)
 // ====================================================================================
+// Processes all the damage that a player recieves. All damage is applied as normal except for when a player gets downed while in a vehicle.
 if (!hasInterface) exitWith {};
 
 params ["_unit", "_selection", "_damage"];
 
 if !(_unit isEqualTo player) exitWith {_damage};
+
+// TODO: Create a system to get the most significant damage that happened within the last frame and use that as the main damage source. All damage will still get applied as normal but the revive calculations will go off of the main damage source.
 
 private _totalDamage = damage _unit + _damage;
 if (_totalDamage >= 1 && {_damage > 0.1} && {!(missionNamespace getVariable ["phx_revive_down",false])} && {diag_frameNo > missionNamespace getVariable ["phx_revive_lastDamageFrameNo",0]} && {!(_selection isEqualTo "")}) then {
@@ -38,7 +41,7 @@ if (_totalDamage >= 1 && {_damage > 0.1} && {!(missionNamespace getVariable ["ph
                 if (alive objectParent _unit) then {
                     // But only set them as downed if the vehicle is still alive
                     _damage = 0;
-                    [_unit, true] remoteExec ["phx_fnc_SetDowned", 0];
+                    [_unit, true] remoteExecCall ["phx_fnc_SetDowned", 0];
                     
                     // Stop player from dying from followup shots for a short period
                     _unit allowDamage false;
@@ -59,7 +62,7 @@ if (_totalDamage >= 1 && {_damage > 0.1} && {!(missionNamespace getVariable ["ph
                     isNull _unit
                 }, {
                     params ["_unit"];
-                    [_unit, true] remoteExec ["phx_fnc_SetDowned", 0];
+                    [_unit, true] remoteExecCall ["phx_fnc_SetDowned", 0];
                 }, []] call CBA_fnc_waitUntilAndExecute;
             };
         } else {
@@ -75,6 +78,6 @@ if (_totalDamage >= 1 && {_damage > 0.1} && {!(missionNamespace getVariable ["ph
 };
 
 if (isBleeding _unit && {!(missionNamespace getVariable ["phx_revive_bleeding",false])}) then {
-    [_unit, true, true] remoteExec ["phx_fnc_SetBleeding", 0];
+    [_unit, true, true] remoteExecCall ["phx_fnc_SetBleeding", 0];
 };
 _damage

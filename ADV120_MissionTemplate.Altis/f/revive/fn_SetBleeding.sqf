@@ -1,6 +1,7 @@
 // F3 - Simple Wounding System -- Modified by robtherad
 // Credits: Please see the F3 online manual (http://www.ferstaberinde.com/f3/en/)
 // ====================================================================================
+// Handles the enabling/disabling of scripted bleeding as well as changing rate of bleeding.
 if (!hasInterface) exitWith {};
 
 params [

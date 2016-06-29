@@ -1,6 +1,7 @@
 // F3 - Simple Wounding System -- Modified by robtherad
 // Credits: Please see the F3 online manual (http://www.ferstaberinde.com/f3/en/)
 // ====================================================================================
+// Handles setting the downed state of a unit.
 if (!hasInterface) exitWith {};
 
 params ["_unit", "_bool"];
@@ -20,7 +21,7 @@ if (_bool && {alive _unit}) then {
         // Slow Bleeding Action
         private _bleedIndex = _unit addAction [
             format["<t color='#FF4040'>Slow</t> %1's <t color='#FF4040'>bleeding</t>",name _unit],
-            {_this remoteExec ["phx_fnc_OnSlowBleeding", [_this select 0, _this select 1]];},
+            {_this remoteExecCall ["phx_fnc_OnSlowBleeding", [_this select 0, _this select 1]];},
             nil, 
             6, 
             false, 
@@ -33,7 +34,7 @@ if (_bool && {alive _unit}) then {
         // Revive Action
         private _reviveIndex = _unit addAction [
             format["<t color='#FF4040'>Revive</t> %1",name _unit],
-            {_this spawn phx_fnc_OnRevive;},
+            {_this call phx_fnc_OnRevive;},
             nil, 
             6, 
             false, 
@@ -46,7 +47,7 @@ if (_bool && {alive _unit}) then {
         // Drag Action.
         private _dragIndex = _unit addAction [
             format ["<t color='#FF4040'>Drag</t> %1", name _unit],
-            {_this remoteExec ["phx_fnc_OnDrag", [_this select 0, _this select 1]];}, 
+            {_this remoteExecCall ["phx_fnc_OnDrag", [_this select 0, _this select 1]];}, 
             nil, 
             6, 
             false, 
@@ -115,7 +116,7 @@ if (_bool && {alive _unit}) then {
         if !((vehicle _unit) getVariable ["phx_revive_ejectIndex",-1] >= 0) then {
             _pullIndex = (vehicle _unit) addAction [
                 "<t color='#FF4040'>Pull out wounded</t>", 
-                {_this remoteExec ["phx_fnc_EjectWounded", 0];}, 
+                {_this remoteExecCall ["phx_fnc_EjectWounded", 0];}, 
                 nil, 
                 5, 
                 false, 

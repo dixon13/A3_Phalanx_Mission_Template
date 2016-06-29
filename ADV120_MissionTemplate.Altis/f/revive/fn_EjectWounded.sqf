@@ -1,9 +1,7 @@
 // F3 - Simple Wounding System -- Modified by robtherad
 // Credits: Please see the F3 online manual (http://www.ferstaberinde.com/f3/en/)
 // ====================================================================================
-// Remotely executed onto all machines
-if (!hasInterface) exitWith {};
-
+// Runs everywhere. Ejects downed units out of vehicles and places them on the ground nearby so they can be revived. 
 params ["_veh", "_caller"];
 
 {

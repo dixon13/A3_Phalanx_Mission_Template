@@ -1,6 +1,7 @@
 // F3 - Simple Wounding System -- Modified by robtherad
 // Credits: Please see the F3 online manual (http://www.ferstaberinde.com/f3/en/)
 // ====================================================================================
+// All the logic for dragging. Runs globally.
 if (!hasInterface) exitWith {};
 
 params ["_unit", "_dragger"];
@@ -30,6 +31,7 @@ if (_dragger isEqualTo player) then {
     ];
     _dragger setVariable ["phx_revive_releaseIndex",_releaseIndex];
     
+    // TODO: See what this is doing, cause it looks like nothing.
     switch (currentWeapon _dragger) do {
         case (primaryWeapon _dragger): {
             _dragger switchMove "acinpknlmstpsraswrfldnon";

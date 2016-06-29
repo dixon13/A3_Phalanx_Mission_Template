@@ -1,6 +1,7 @@
 // F3 - Simple Wounding System -- Modified by robtherad
 // Credits: Please see the F3 online manual (http://www.ferstaberinde.com/f3/en/)
 // ====================================================================================
+// Called by the slow bleeding action. Runs only on the healing unit. Waits for the animation to have played and then slows the bleeding of the downed unit if none of the conditions have changed.
 if (!hasInterface) exitWith {};
 
 params ["_downedUnit", "_healingUnit"];
@@ -35,7 +36,7 @@ if !(alive _downedUnit) exitWith {titleText ["Bandaging Failed - The patient is 
 _healingUnit removeItem "FirstAidKit"; // Consume the FAK
 
 // Slow the unit's bleeding
-[_downedUnit, true, false] remoteExec ["phx_fnc_SetBleeding", 0];
+[_downedUnit, true, false] remoteExecCall ["phx_fnc_SetBleeding", 0];
 
 // Allow unit to speak again, but not use the radio
 _downedUnit setVariable ["tf_voiceVolume", 1.0, true];

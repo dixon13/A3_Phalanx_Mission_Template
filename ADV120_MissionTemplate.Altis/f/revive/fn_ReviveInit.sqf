@@ -1,16 +1,16 @@
 // F3 - Simple Wounding System -- Modified by robtherad
 // Credits: Please see the F3 online manual (http://www.ferstaberinde.com/f3/en/)
 // ====================================================================================
+// Adds everything related to the revive script
 if (!hasInterface) ExitWith {};
 
-// add briefing
-if (isNil "phx_revive_briefing") then {phx_revive_briefing = true;};
-if (isNil "phx_revive_extraFAK") then {phx_revive_extraFAK = 0};
+// Ensure revive script isn't run twice.
+if !(isNil "phx_revive_initialized") exitWith {diag_log "PHX reviveInit: Tried to initialize twice!"};
+phx_revive_initialized = false;
 
-if (phx_revive_briefing) then {
-    [] spawn {
-        waitUntil {!isNil "PHX_Diary"};
-        _bstr = format ["OVERVIEW<br/>
+// Add briefing note
+[{!isNull "PHX_Diary"}, {
+    private _bstr = format ["OVERVIEW<br/>
     When a player is wounded to the point of being 'incapacitated' they become a casualty. Casualties are prone and unable to move or speak. Certain wounds such as headshots have a high chance of instantly killing a player instead of causing them to become a casualty.
 <br/><br/>
 TREATING CASUALTIES<br/>
@@ -24,11 +24,10 @@ DRAGGING CASUALTIES<br/>
 <br/><br/>
 CREDITS<br/>
     Based on the F3 Mission Framework's Simple Wounding System. Modified for Phalanx by robtherad."];
-        player createDiaryRecord ["PHX_Diary", ["Revive Info",_bstr]];
-    };
-};
+    player createDiaryRecord ["PHX_Diary", ["Revive Info",_bstr]];
+}, []] call CBA_fnc_waitUntilAndExecute;
 
-// Initialize variables
+// Initialize revive variables
 player setVariable ["phx_revive_down",false];
 phx_revive_down = false;
 player setVariable ["phx_revive_bleeding",false];
@@ -40,8 +39,8 @@ player setVariable ["phx_revive_dragging",nil];
 player setVariable ["phx_revive_respawnRevive",true,true];
 phx_revive_respawnRevive = true;
 
-// Lifeticker, manages bleeding and blood values.
-[] spawn phx_fnc_LifeTick;
+// Add life ticker. Handles bleeding, bleeding rate, and death when blood runs out.
+[] call phx_fnc_LifeTick;
 
 {
     _x setVariable ["phx_revive_down",false];
@@ -49,14 +48,15 @@ phx_revive_respawnRevive = true;
     _x setVariable ["phx_revive_bleeding",false];
 } forEach playableUnits;
 
-// defines the PP effects for the downed effect.
+// Define the PP effects for the downed effect
 phx_revive_UncCC = ppEffectCreate ["ColorCorrections", 1603];
 phx_revive_UncRadialBlur = ppEffectCreate ["RadialBlur", 280];
 phx_revive_UncBlur = ppEffectCreate ["DynamicBlur", 180];
 phx_revive_UncToggle = false;
 phx_revive_damageValue = 1.1;
 
-// Eventhandlers for the player.
+// Add eventhandlers for the player
+player addEventHandler ["HandleHeal",{_this call phx_fnc_OnHeal}];
 player addEventHandler ["HandleDamage",{_this call phx_fnc_OnDamage}];
 player addEventHandler ["InventoryClosed",{
     if (alive player) then {
@@ -73,9 +73,8 @@ player addEventHandler ["InventoryOpened",{
     };
 }];
 
-// Add a PFH to make sure the saved loadout is never more than ~30 seconds out of date
-[] spawn {
-    waitUntil {missionNamespace getVariable ["phx_loadoutAssigned",false]};
+// Wait for loadout to get set, then add a PFH to make sure the saved loadout is never more than ~5 seconds out of date
+[{missionNamespace getVariable ["phx_loadoutAssigned",false]}, {
     [{
         params ["_args", "_handle"];
         
@@ -89,4 +88,6 @@ player addEventHandler ["InventoryOpened",{
             [_handle] call CBA_fnc_removePerFrameHandler; // Player is spectator, no need for loadouts to be saved anymore
         };
     }, 5, []] call CBA_fnc_addPerFrameHandler;
-};
+}, []] call CBA_fnc_waitUntilAndExecute;
+
+phx_revive_initialized = true;

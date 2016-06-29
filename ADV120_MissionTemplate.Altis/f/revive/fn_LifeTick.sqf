@@ -1,9 +1,13 @@
 // F3 - Simple Wounding System -- Modified by robtherad
 // Credits: Please see the F3 online manual (http://www.ferstaberinde.com/f3/en/)
 // ====================================================================================
+// The main loops of the revive script that handle setting various things.
 if (!hasInterface) exitWith {};
 
-// handles the woundeffect
+if !(isNil "phx_revive_lifeTickAdded") exitWith {};
+phx_revive_lifeTickAdded = true;
+
+// Handles the wounded effect.
 [{
     params ["_args", "_handle"];
     
@@ -11,14 +15,14 @@ if (!hasInterface) exitWith {};
         _downed = missionNamespace getVariable ["phx_revive_down",false];
         _bleeding = missionNamespace getVariable ["phx_revive_bleeding",false];
         if (_downed || _bleeding) then {
-            [] call phx_fnc_WoundedEffect;
+            [] spawn phx_fnc_WoundedEffect;
         };
     } else {
         [_handle] call CBA_fnc_removePerFrameHandler;
     };
 }, 2.5, []] call CBA_fnc_addPerFrameHandler;
 
-// ticker for life, calculates death and blood.
+// Life ticker. Calculates blood, bleeding rate, and handles killing the player if they bleed out.
 [{
     params ["_args", "_handle"];
     

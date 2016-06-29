@@ -1,7 +1,7 @@
 // F3 - Simple Wounding System -- Modified by robtherad
 // Credits: Please see the F3 online manual (http://www.ferstaberinde.com/f3/en/)
 // ====================================================================================
-// Add a player's linked items back to him
+// Add a player's linked items back to him. Without this, items will get desynced.
 if (!hasInterface) exitWith {};
 
 params ["_loadoutArray"];

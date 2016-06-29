@@ -1,19 +1,27 @@
 // F3 - Simple Wounding System -- Modified by robtherad
 // Credits: Please see the F3 online manual (http://www.ferstaberinde.com/f3/en/)
 // ====================================================================================
-// runs on the healer.
+// Triggered by the HandleHeal EH. Stops a player's scripted bleeding when they get healed.
 if (!hasInterface) exitWith {};
 
-_ret = true; // Let the engine take care of the healing
-_this spawn {
+// Add wait until for animation starting
+[{
+    params ["_unit", "_healer"];
+    (["medic",animationstate _healer] call bis_fnc_inString)
+}, {
     params ["_unit", "_healer"];
     
-    waitUntil {(["medic",animationstate _healer] call bis_fnc_inString)};
-    waitUntil {!(["medic",animationstate _healer] call bis_fnc_inString)};
+    // Add wait until for animation ending
+    [{
+        params ["_unit", "_healer"];
+        !(["medic",animationstate _healer] call bis_fnc_inString)
+    }, {
+        params ["_unit", "_healer"];
+        
+        if (_unit getVariable ["phx_revive_bleeding",false]) then {
+            [_unit, false, true] remoteExecCall ["phx_fnc_SetBleeding", 0];
+        };
+    }, [_unit,_healer] call CBA_fnc_waitUntilAndExecute;
+}, [_unit, _healer]] call CBA_fnc_waitUntilAndExecute;
     
-    // Stop bleeding when healing
-    if (_unit getVariable ["phx_revive_bleeding",false]) then {
-        [_unit, false, true] remoteExec ["phx_fnc_SetBleeding", 0];
-    };
-};
-_ret
+true
